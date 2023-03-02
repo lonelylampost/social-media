@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div id="gamedisplay">
+        <div id="createcomment" class="hide">
+            <div id="newusercomment">
+                <button onclick="confirmNewComm()">X</button>
+                <form id="newcomment" action="/game/:selectedGameID" method="POST">
+                    <textarea id="content "name="content" placeholder="Write something here..."></textarea>
+                    <input type="hidden" id='gameinput' name="gameinput" value=<%= game.name %> >
+                    <input type="hidden" id='gameinputID' name="gameinputID" value=<%= game.guid %> >
+                    <div id="starrating">
+                        <input type="checkbox" name="check" value="1" onclick="onlyOne(this)">
+                        <input type="checkbox" name="check" value="2" onclick="onlyOne(this)">
+                        <input type="checkbox" name="check" value="3" onclick="onlyOne(this)">
+                        <input type="checkbox" name="check" value="4" onclick="onlyOne(this)">
+                        <input type="checkbox" name="check" value="5" onclick="onlyOne(this)">
+                    </div>
+                    <button onclick="confirmNewComm()">Post</button>
+                </form>
+            </div>
+        </div>
+        <div id="gameinfo">
+            <img class="gameimage" src=<%= game.image.medium_url %>>
+            <div id="gamewords">
+                <div id="titlename"><%= game.name %></div>
+                <div><%= game.original_release_date %></div>
+                <div><%= game.deck %></div>
+            </div>
+            <button onclick="openNewComm()">Comment</button>
+        </div>
+        <div id="comments">
+            <div id="commentstitle">Comments</div> 
+            <% if (gameComments) { %>
+                <% for (let i = 0; i < gameComments.length; i++) { %>
+                    <div class="comment">
+                        <div><%= gameComments[i].username %></div>
+                        <div><%= gameComments[i].content %></div>
+                        <div class="commentstats">
+                            <div><%= gameComments[i].comments.length %></div>
+                            <div><%= gameComments[i].likes %></div>
+                        </div>
+                    </div>
+                <% }} %>
+        </div>
+    </div>
+</body>
+<script src="/nav.js"></script>
+</html>

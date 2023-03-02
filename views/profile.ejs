@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="profile">
+        <div id="sidebar" class="hide">
+            <a href="/gamesearch">Search</button>
+            <a>Customize</a>
+            <a href="https://github.com/lonelylampost">About</a>
+            <a href="/log-out">Log Out</a>
+        </div>
+        <img id="menu" src="./img/menu.svg" onclick="menuDisplay()">
+        <div id="welcome">WELCOME BACK <%= user.username %></div>
+        <div id="gamecommentsnotes">
+        <div class="siblings">
+            <div class="title">Game Comments</div>
+        <% if (gameComments) { %>
+            <% for (let i = 0; i < gameComments.length; i++) { %>
+                <div class="comment">
+                  <div id="newusercomment" class="hide">
+                    <div class="buttonarea">
+                    <button onclick="confirmNewPost()">X</button>
+                    </div>
+                  <form class="profileform" method="post" action="/profile/<%= gameComments[i]._id %>?_method=PUT">
+                    <textarea id="content "name="content"><%= gameComments[i].content %></textarea>
+                    <input type="hidden" id='gameinput' name="gameinput" value=<%= gameComments[i]._id %> >
+                    <input type="hidden" id='gametype' name="gametype" value="comment" >
+                    <div id="starrating">
+                        <input type="checkbox" name="check" value="1" onclick="onlyOne(this)">
+                        <input type="checkbox" name="check" value="2" onclick="onlyOne(this)">
+                        <input type="checkbox" name="check" value="3" onclick="onlyOne(this)">
+                        <input type="checkbox" name="check" value="4" onclick="onlyOne(this)">
+                        <input type="checkbox" name="check" value="5" onclick="onlyOne(this)">
+                    </div>
+                    <button type="submit" onclick="confirmNewPost()">Confirm Update</button>
+                  </form>
+                </div>
+                  <div class="commentstatsspec">
+                    <button onclick="openNewPost()">Update</button>
+                    <form id="deleteusercomment" method="post" action="/profile/delete/<%= gameComments[i]._id %>?_method=DELETE" >
+                      <input type="hidden" id='gameinput' name="gameinput" value="comment" >
+                      <button type="submit" name="letdelete" value=<%= gameComments[i]._id %>>X</button>
+                    </form>
+                  </div>
+                    <div><%= gameComments[i].userName %></div>
+                    <a href="/game/<%= gameComments[i].gameID %>"><%= gameComments[i].game %></a>
+                    <div><%= gameComments[i].content %></div>
+                    <div class="commentstats">
+                        <div><%= gameComments[i].comments %></div>
+                        <div><%= gameComments[i].likes %></div>
+                    </div>
+                </div>
+            <% } %>
+          <% } else { %>
+            <div id="empty">
+                <div> >--- Add some games to your library!</div>
+            </div>
+          <%}%>
+            </div>
+          <div class="siblings">
+            <div class="title">Game Notes
+              <button onclick="openNewNote()">+</button>
+            </div>
+          <% if (gameNotes) { %>
+            <% for (let i = 0; i < gameNotes.length; i++) { %>
+              <form id="newusernote" action="/profile" method="POST" class="hide">
+                <textarea id="content "name="content"></textarea>
+                <button onclick="confirmNewNote()">New Note</button>
+              </form>
+                <div class="comment">
+                  <div id="updatenote" class="hide">
+                    <div class="buttonarea">
+                      <button onclick="closeUpdateNote()">X</button>
+                    </div>
+                    <form class="profileform" method="post" action="/profile/<%= gameNotes[i]._id %>?_method=PUT" >
+                      <textarea id="content "name="content"><%= gameNotes[i].content %></textarea>
+                      <input type="hidden" id='gameinput' name="gameinput" value=<%= gameNotes[i]._id %> >
+                      <button type="submit" onclick="confirmNewPost()">Confirm Update</button>
+                    </form>
+                  </div>
+                  <div class="commentstatsspec">
+                    <button onclick="openUpdateNote()">Update</button>
+                    <form id="deleteusernotes" method="post" action="/profile/delete/<%= gameNotes[i]._id %>?_method=DELETE" >
+                      <input type="hidden" id='gameinput' name="gameinput" value="note" >
+                      <button type="submit" name="letdeletecomm" value=<%= gameNotes[i]._id %>>X</button>
+                    </form>
+                  </div>
+                    <div><%= gameNotes[i].date %></div>
+                    <% if (gameNotes[i].gameID !== '0') { %>
+                      <a href="/game/<%= gameNotes[i].gameID %>"><%= gameNotes[i].game %></a>
+                    <% } %>
+                    <div><%= gameNotes[i].content %></div>
+                </div>
+            <% } %>
+          <% } else { %>
+            <div id="empty">
+                <div>Write some notes!</div>
+                <form id="newusernote" action="/profile" method="POST" class="hide">
+                  <textarea id="content "name="content"></textarea>
+                  <button onclick="confirmNewNote()">New Note</button>
+                </form>
+            </div>
+          <%}%>
+          </div>
+        </div>
+    </div>
+</body>
+<script src="nav.js"></script>
+</html>

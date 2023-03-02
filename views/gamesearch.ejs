@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="gamesearch">
+        <form id="searchbox" action="/gamesearch" method='GET' >
+            <input type="text" id="userinput" name="userinput" placeholder="Search...">
+            <button id="gamesearchsubmit" type="submit">Submit</button>
+        </form>
+        <div id="searchresults">
+           <% if (searchMatches) { %>
+            <% for (let i = 0; i < searchMatches.length; i++) { %>
+                <div class="gameex">
+                    <img src= <%= searchMatches[i].image.small_url %>>
+                    <div class="innersearchmatch">
+                        <div><%= searchMatches[i].original_release_date %></div>
+                        <div><%= searchMatches[i].deck %></div>
+                        <a href="/game/<%= searchMatches[i].guid %>">></a>
+                    </div>
+                </div>
+               <% }} %>
+        </div>
+    </div>
+</body>
+</html>

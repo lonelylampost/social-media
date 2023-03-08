@@ -21,6 +21,7 @@
         <% if (gameComments) { %>
             <% for (let i = 0; i < gameComments.length; i++) { %>
                 <div class="comment">
+                <% if (gameComments[i].username === user.username) { %>
                   <div id="newusercomment" class="hide">
                     <div class="buttonarea">
                     <button onclick="confirmNewPost()">X</button>
@@ -46,14 +47,27 @@
                       <button type="submit" name="letdelete" value=<%= gameComments[i]._id %>>X</button>
                     </form>
                   </div>
+                  <% } %>
                     <div><%= gameComments[i].userName %></div>
                     <a href="/game/<%= gameComments[i].gameID %>"><%= gameComments[i].game %></a>
                     <div><%= gameComments[i].content %></div>
                     <div class="commentstats">
-                        <div><%= gameComments[i].comments %></div>
-                        <div><%= gameComments[i].likes %></div>
+                        <div><%= gameComments[i].comments.length %> Comments</div>
+                        <div><%= gameComments[i].likes.length %> Likes</div>
                     </div>
                 </div>
+                <% if (gameComments[i].comments.length > 1) { %>
+                  <% for (let a = 1; a < gameComments[i].comments.length; a++) { %>
+                      <div class="replies">
+                          <div class="replyusername"><%= gameComments[i].comments[a].username%></div>
+                          <div><%= gameComments[i].comments[a].content %></div>
+                          <div class="commentstats">
+                              <% if (gameComments[i].comments[a].likes) { %>
+                                  <div><%= gameComments[i].comments[a].likes.length %></div>
+                              <% } %>
+                          </div>
+                      </div>
+                      <% }} %>
             <% } %>
           <% } else { %>
             <div id="empty">

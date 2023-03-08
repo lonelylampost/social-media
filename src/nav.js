@@ -56,3 +56,11 @@ function openNewNote() {
 function confirmNewNote() {
     document.getElementById('newusernote').classList.add('hide')
 }
+
+function openNewReply() {
+    document.getElementById('newuserreply').classList.remove('hide')
+}
+
+function confirmNewReply() {
+    document.getElementById('newuserreply').classList.add('hide')
+}

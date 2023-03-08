@@ -23,6 +23,10 @@ textarea {
     margin: 20px;
 }
 
+.invert {
+    filter: invert(1);
+}
+
 button {
     background: black;
     color: white;
@@ -117,6 +121,7 @@ button {
 #gamedisplay {
     height: 100%;
     display: flex;
+    padding-left: 3%;
 }
 
 #comments {
@@ -127,6 +132,8 @@ button {
 .commentstats {
     display: flex;
     gap: 20px;
+    align-items: baseline;
+    justify-content: space-between;
 }
 
 .hide {
@@ -209,7 +216,7 @@ button {
     width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-end;
     gap: 10px;
     height: 100%;
 }
@@ -335,4 +342,23 @@ button {
     border: 1px solid grey;
     padding: 2px;
     border-radius: 8px;
+}
+
+.replies {
+    border: 1px solid white;
+    border-radius: 5px;
+    padding: 20px;
+    margin: 4px 0px 0 40px;
+}
+
+.replyusername {
+    margin-bottom: 6px;
+}
+
+.replystats {
+    display: flex;
+}
+
+#heart:active {
+    filter: invert(1);
 }

@@ -135,7 +135,8 @@ app.get("/profile", (req, res) => {
     }
     filteredNotes = filteredNotesRes
   })
-  UserPost.find({username : req.user.username})
+
+  UserPost.find({ $or: [{username : req.user.username}, {comments: {$elemMatch: {username: req.user.username }}}]})
   .sort({date: -1})
   .exec(function (err, filteredcomments) {
     if (err) {
@@ -187,7 +188,7 @@ app.get("/game/:selectedGameID", (req, res) => {
 app.post('/game/:selectedGameID', async (req, res, next) => {
   let currentDate = new Date().toLocaleDateString()
   let rating =[]
-  console.log(req.body.gameinput)
+  let gameName
   for (let i = 0; i < 5; i++) {
     if (req.body.check) {
       if (req.body.check[i]) {
@@ -195,25 +196,42 @@ app.post('/game/:selectedGameID', async (req, res, next) => {
       }
     }
   }
-  if (!req.user) {
-    res.redirect("/");
-  } else {
-  const newPost = await new UserPost({
-    username: req.user.username,
-    content: req.body.content,
-    date: currentDate, 
-    game: req.body.gameinput,
-    gameID: req.body.gameinputID,
-    likes: 0,
-    comments: 0,
-    rating: rating.length
-  }).save(err => {
-    if (err) { 
-      return next(err);
-    }
-  res.redirect("/profile");
-  })}
+  let url = `https://www.giantbomb.com/api/game/${req.body.gameinputID}/?api_key=${GB_ID}&format=json`
+  function loadJSON(url) {
+    fetch(url)
+    .then(
+      function(response) {
+        response.json().then(async function(data) {
+          gameName = await data.results.name
+          if (!req.user) {
+            res.redirect("/");
+          } else {
+          const newPost = await new UserPost({
+            username: req.user.username,
+            content: req.body.content,
+            date: currentDate, 
+            game: gameName,
+            gameID: req.body.gameinputID,
+            likes: 0,
+            comments: 0,
+            rating: rating.length
+          }).save(err => {
+            if (err) { 
+              return next(err);
+            }
+          res.redirect("/profile");
+          })}
+        });
+      }
+    )
+    .catch(function(err) {
+      console.log('Fetch Error :-S', err);
+    });
+  }
+  loadJSON(url,'jsonp')
 })
+
+
 
 app.get("/gamesearch", async (req, res) => {
   let searchMatches = []
@@ -260,6 +278,10 @@ app.post('/profile', async (req, res, next) => {
 })
 
 app.post("/sign-up", async (req, res, next) => {
+  const usernameCheck = await User.findOne({ username: req.body.username});
+   if (usernameCheck) {
+     res.redirect("/sign-up")
+   }
     const passEncrypt = await bcrypt.hash(req.body.password, 10)
     const user = await new User({
       username: req.body.username,
@@ -298,6 +320,99 @@ app.get("/profile/:id", (req, res) => {
 
 
 app.use(methodOverride());
+
+
+app.post('/game/:selectedGameID/like/:commentID', async (req, res) => {
+  if (req.user === undefined) {
+    res.redirect("/");
+  } else if (req.body.likeusername === req.user.username) {
+    return res.redirect('/game/' + req.params.selectedGameID)
+  } else {
+    UserPost.findOne(
+      { _id: req.params.commentID , likes: req.user.username})
+      .then(async (user) => {
+          if (user) {
+            UserPost.findByIdAndUpdate(req.params.commentID,
+              { $pull: {likes: req.user.username}},
+              function(err) {
+                if (err) console.log(err)
+            }) 
+                return res.redirect('/game/' + req.params.selectedGameID)
+          } else {
+    UserPost.findByIdAndUpdate(req.params.commentID,
+      { $push: {likes: req.user.username}},
+      function(err) {
+        if (err) console.log(err)
+    }) 
+    return res.redirect('/game/' + req.params.selectedGameID)}})
+  }
+})
+
+app.post('/game/:selectedGameID/replylike/:commentID', async (req, res) => {
+  if (req.user === undefined) {
+    res.redirect("/")
+  } else if (req.body.replyusername === req.user.username){
+    return res.redirect('/game/' + req.params.selectedGameID)
+  } else {
+    UserPost.findOne(
+      { _id: req.params.commentID , 
+      comments: {$elemMatch: {username: req.body.replyusername, content: req.body.replycontent, likes: req.user.username }}})
+      .then(async (user) => {
+          if (user) {
+              UserPost.updateOne({ _id: req.params.commentID , comments: {$elemMatch: {username: req.body.replyusername, content: req.body.replycontent, likes: req.user.username }}},
+                {$pull: {'comments.$.likes': req.user.username}},      
+                function(err) {
+                  if (err) console.log(err)
+                })  
+                return res.redirect('/game/' + req.params.selectedGameID)
+          } else {
+            UserPost.updateMany({ _id: req.params.commentID , comments: {$elemMatch: {username: req.body.replyusername, content: req.body.replycontent }} },
+              { $push: {'comments.$.likes': req.user.username}},                       
+              function(err) {
+              if (err) console.log(err)
+            })  
+            return res.redirect('/game/' + req.params.selectedGameID)
+          }
+      })
+      }
+  })
+
+app.post('/game/:selectedGameID/comment/:commentID', async (req, res) => {
+  let currentDate = new Date().toLocaleDateString()
+  let url = `https://www.giantbomb.com/api/game/${req.params.selectedGameID}/?api_key=${GB_ID}&format=json`
+  function loadJSON(url) {
+    fetch(url)
+    .then(
+      function(response) {
+        response.json().then(async function(data) {
+          gameName = await data.results.name
+          if (!req.user) {
+            res.redirect("/");
+          } else {
+            UserPost.findByIdAndUpdate(req.params.commentID,
+              { $push: {comments: {
+                username: req.user.username,
+                content: req.body.content,
+                game: gameName,
+                gameID: req.params.selectedGameID,
+                date: currentDate,
+                likes: [],
+              }}},
+              function(err) {
+                if (err) console.log(err)
+              }) 
+            res.redirect('/game/' + req.params.selectedGameID)
+          }
+        });
+      }
+    )
+    .catch(function(err) {
+      console.log('Fetch Error :-S', err);
+    });
+  }
+  loadJSON(url,'jsonp')
+  //return res.redirect('/game/' + req.params.selectedGameID)
+})
 
 app.post("/profile/:newid", async (req, res) => {
   let currentDate = new Date().toLocaleDateString()

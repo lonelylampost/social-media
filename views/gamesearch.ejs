@@ -6,6 +6,13 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div id="sidebar" class="hide">
+        <a href="/gamesearch">Search</button>
+        <a href="/profile">Profile</a>
+        <a href="https://github.com/lonelylampost">About</a>
+        <a href="/log-out">Log Out</a>
+    </div>
+    <img id="menu" src="../img/menu.svg" onclick="menuDisplay()">
     <div id="gamesearch">
         <form id="searchbox" action="/gamesearch" method='GET' >
             <input type="text" id="userinput" name="userinput" placeholder="Search...">

@@ -6,6 +6,13 @@
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
+    <div id="sidebar" class="hide">
+        <a href="/gamesearch">Search</button>
+        <a href="/profile">Profile</a>
+        <a href="https://github.com/lonelylampost">About</a>
+        <a href="/log-out">Log Out</a>
+    </div>
+    <img id="menu" src="../img/menu.svg" onclick="menuDisplay()">
     <div id="gamedisplay">
         <div id="createcomment" class="hide">
             <div id="newusercomment">
@@ -42,10 +49,45 @@
                         <div><%= gameComments[i].username %></div>
                         <div><%= gameComments[i].content %></div>
                         <div class="commentstats">
-                            <div><%= gameComments[i].comments.length %></div>
-                            <div><%= gameComments[i].likes %></div>
+                            <div id="createreply" >
+                                <button onclick="openNewReply()">+</button>
+                            </div>
+                            <div><%= gameComments[i].comments.length - 1 %></div>
+                            <form class="profileform" method="post" action="/game/<%= game.guid %>/like/<%= gameComments[i]._id %>?_method=PUT">
+                                <input type="hidden" id='gameinput' name="gameinput" value=<%= user.username %> >
+                                <input type="hidden" name="likeusername" value=<%= gameComments[i].username %> >
+                                <input type="hidden" name="type" value="child" >
+                                <button id="heart" type="submit">♡</button>
+                            </form>
+                            <div><%= gameComments[i].likes.length - 1 %></div>
+                        </div>
+                        <div id="newuserreply" class="hide">
+                            <form id="newreply" action="/game/<%= game.guid %>/comment/<%= gameComments[i]._id %>?_method=PUT" method="POST">
+                                <textarea id="content "name="content" placeholder="Write something here..."></textarea>
+                                <input type="hidden" id='gameinput' name="gameinput" value=<%= game.name %> >
+                                <input type="hidden" id='gameinputID' name="gameinputID" value=<%= game.guid %> >
+                                <input type="hidden" name="type" value="child" >
+                                <button onclick="confirmNewReply()">Post</button>
+                            </form>
                         </div>
                     </div>
+                    <% if (gameComments[i].comments.length > 1) { %>
+                        <% for (let a = 1; a < gameComments[i].comments.length; a++) { %>
+                            <div class="replies">
+                                <div class="replyusername"><%= gameComments[i].comments[a].username%></div>
+                                <div><%= gameComments[i].comments[a].content %></div>
+                                <div class="commentstats">
+                                    <form class="profileform" method="post" action="/game/<%= game.guid %>/replylike/<%= gameComments[i]._id %>?_method=PUT">
+                                        <input type="hidden" name="replyusername" value=<%= gameComments[i].comments[a].username %> >
+                                        <input type="hidden" name="replycontent" value=<%= gameComments[i].comments[a].content %> >
+                                        <button id="heart" type="submit">♡</button>
+                                    </form>
+                                    <% if (gameComments[i].comments[a].likes) { %>
+                                        <div><%= gameComments[i].comments[a].likes.length %></div>
+                                    <% } %>
+                                </div>
+                            </div>
+                            <% }} %>
                 <% }} %>
         </div>
     </div>
